@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Product Description Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+                    ProductGen AI
+                </h1>
+            </div>
+            <div>
+                <button id="theme-toggle" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 focus:outline-none transition-colors">
+                    <i id="theme-toggle-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">
+                Generate High-Converting Product Descriptions
+            </h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Boost your sales with AI-powered, SEO-optimized descriptions tailored to your audience and brand voice.
+            </p>
+        </div>
+
+        <!-- API Key Setup Banner -->
+        <div class="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fa-solid fa-key text-yellow-500"></i>
+                </div>
+                <div class="ml-3 w-full">
+                    <p class="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+                        Setup Google Gemini API Key
+                    </p>
+                    <div class="mt-2 flex items-center space-x-2">
+                        <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key"
+                            class="flex-1 max-w-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500">
+                        <button id="save-api-key" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                            Save Key
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-yellow-700 dark:text-yellow-400">
+                        Your key is stored locally in your browser and is not sent anywhere else. Get a free key <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline">here</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Left Column: Input Form -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
+                <h3 class="text-xl font-semibold mb-6 flex items-center border-b border-gray-200 dark:border-gray-700 pb-3">
+                    <i class="fa-solid fa-pen-to-square mr-2 text-primary"></i> Product Details
+                </h3>
+
+                <form id="generator-form" class="space-y-5">
+                    <!-- Product Name -->
+                    <div>
+                        <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="product-name" required placeholder="e.g. Wireless Noise-Cancelling Headphones"
+                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                    </div>
+
+                    <!-- Key Features -->
+                    <div>
+                        <label for="key-features" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Key Features / Keywords <span class="text-red-500">*</span></label>
+                        <textarea id="key-features" required rows="3" placeholder="e.g. 30-hour battery life, active noise cancellation, Bluetooth 5.0, comfortable over-ear design"
+                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-y"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Target Audience -->
+                        <div>
+                            <label for="target-audience" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Audience</label>
+                            <select id="target-audience" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+                                <option value="General">General Audience</option>
+                                <option value="Professionals">Professionals</option>
+                                <option value="Teenagers">Teenagers</option>
+                                <option value="Parents">Parents</option>
+                                <option value="Tech Enthusiasts">Tech Enthusiasts</option>
+                                <option value="Fitness Enthusiasts">Fitness Enthusiasts</option>
+                            </select>
+                        </div>
+
+                        <!-- Tone of Voice -->
+                        <div>
+                            <label for="tone-voice" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tone of Voice</label>
+                            <select id="tone-voice" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+                                <option value="Professional">Professional</option>
+                                <option value="Friendly">Friendly</option>
+                                <option value="Urgent/Persuasive">Urgent/Persuasive</option>
+                                <option value="Luxury">Luxury</option>
+                                <option value="Humorous">Humorous</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Language Output -->
+                    <div>
+                        <label for="language-output" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Language</label>
+                        <select id="language-output" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+                            <option value="English">English</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="French">French</option>
+                            <option value="Arabic">Arabic</option>
+                            <option value="German">German</option>
+                        </select>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="pt-2">
+                        <button type="submit" id="generate-btn" class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center">
+                            <span id="btn-text">Generate Description</span>
+                            <i id="btn-icon" class="fa-solid fa-rocket ml-2"></i>
+                            <div id="loading-spinner" class="hidden ml-2 h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                        </button>
+                    </div>
+
+                    <!-- Error Message Container -->
+                    <div id="error-message" class="hidden mt-4 p-3 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-sm flex items-start">
+                        <i class="fa-solid fa-circle-exclamation mt-0.5 mr-2"></i>
+                        <span id="error-text">An error occurred.</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column: Output Area -->
+            <div class="flex flex-col space-y-6 h-full">
+
+                <!-- Main Description Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col flex-grow">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-t-xl">
+                        <h3 class="font-semibold flex items-center text-gray-800 dark:text-gray-200">
+                            <i class="fa-solid fa-file-lines mr-2 text-secondary"></i> Product Description
+                        </h3>
+                        <button id="copy-desc-btn" class="text-sm bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 py-1.5 px-3 rounded-md transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fa-regular fa-copy mr-1.5"></i> <span id="copy-desc-text">Copy</span>
+                        </button>
+                    </div>
+                    <div class="p-5 flex-grow overflow-y-auto relative min-h-[250px]" id="description-container">
+                        <!-- Placeholder State -->
+                        <div id="desc-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 p-6 text-center">
+                            <i class="fa-regular fa-image text-4xl mb-3 opacity-50"></i>
+                            <p>Fill out the form and click generate to create a high-converting description.</p>
+                        </div>
+
+                        <!-- Output Content -->
+                        <div id="description-output" class="hidden text-gray-800 dark:text-gray-200 prose dark:prose-invert max-w-none">
+                            <!-- Generated content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEO Meta Description Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-t-xl">
+                        <h3 class="font-semibold flex items-center text-gray-800 dark:text-gray-200">
+                            <i class="fa-brands fa-google mr-2 text-blue-500"></i> SEO Meta Description
+                        </h3>
+                        <button id="copy-seo-btn" class="text-sm bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 py-1.5 px-3 rounded-md transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fa-regular fa-copy mr-1.5"></i> <span id="copy-seo-text">Copy</span>
+                        </button>
+                    </div>
+                    <div class="p-5 relative min-h-[100px]">
+                        <!-- Placeholder State -->
+                        <div id="seo-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                            <p class="text-sm text-center">SEO optimized meta description will appear here.</p>
+                        </div>
+
+                        <!-- Output Content -->
+                        <div id="seo-output" class="hidden">
+                            <p class="text-blue-600 dark:text-blue-400 text-lg mb-1 truncate" id="seo-preview-title">Product Name</p>
+                            <p class="text-green-700 dark:text-green-500 text-sm mb-1 truncate">https://yourstore.com/product</p>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2" id="seo-preview-desc">
+                                <!-- SEO text here -->
+                            </p>
+                            <div class="mt-2 text-xs text-gray-500 text-right font-mono">
+                                <span id="seo-char-count">0</span>/160 chars
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 dark:border-gray-700 mt-12 bg-white dark:bg-gray-800 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+            &copy; 2023 ProductGen AI. E-commerce Description Generator. Built with Vanilla JS & Tailwind.
+        </div>
+    </footer>
+
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
