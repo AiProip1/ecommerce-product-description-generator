@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     `;
 
     // 4. Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -89,11 +89,17 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Gemini API Error:", errorData);
-        return res.status(response.status).json({
-            error: errorData.error?.message || `API Error: ${response.status}`
-        });
+        const errorText = await response.text();
+        let errorMessage = `API Error: ${response.status}`;
+        try {
+            const errorData = JSON.parse(errorText);
+            console.error("Gemini API Error:", errorData);
+            errorMessage = errorData.error?.message || errorMessage;
+        } catch (e) {
+            console.error("Gemini API Error (Text):", errorText);
+            errorMessage = `${errorMessage} - ${errorText.substring(0, 100)}`;
+        }
+        return res.status(response.status).json({ error: errorMessage });
     }
 
     const data = await response.json();
