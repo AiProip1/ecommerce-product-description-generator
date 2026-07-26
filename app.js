@@ -179,25 +179,58 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMsgContainer.classList.add('hidden');
 
         // Get Form Values
-        const payload = {
-            productName: document.getElementById('product-name').value.trim(),
-            keyFeatures: document.getElementById('key-features').value.trim(),
-            targetAudience: document.getElementById('target-audience').value,
-            toneVoice: document.getElementById('tone-voice').value,
-            wordCount: document.getElementById('word-count').value,
-            language: document.getElementById('language-output').value
-        };
+        const productName = document.getElementById('product-name').value.trim();
+        const keyFeatures = document.getElementById('key-features').value.trim();
+        const targetAudience = document.getElementById('target-audience').value;
+        const toneVoice = document.getElementById('tone-voice').value;
+        const wordCount = document.getElementById('word-count').value;
+        const language = document.getElementById('language-output').value;
+
+        if (!productName || !keyFeatures) {
+            showError("Product Name and Key Features are required.");
+            return;
+        }
 
         // Set Loading State
         setLoadingState(true);
 
         try {
+            // Construct Prompt
+            let lengthInstruction = "Include an engaging hook, a paragraph highlighting the main benefits, and bullet points for key features. Keep it structured and easy to read.";
+            if (wordCount === 'Short & Punchy') {
+                lengthInstruction = "Make it very short, punchy, and straight to the point. 1-2 short paragraphs max.";
+            } else if (wordCount === 'Bullet Points Only') {
+                lengthInstruction = "Do not write paragraphs. Output the description ONLY as a list of compelling bullet points.";
+            } else if (wordCount === 'Detailed') {
+                lengthInstruction = "Write a comprehensive and detailed description. Include a hook, story-driven benefits, technical specifications in bullet points, and a strong call to action.";
+            }
+
+            const prompt = `You are an expert E-commerce Copywriter and SEO specialist.
+            Please generate two things based on the following product details:
+
+            Product Name: ${productName}
+            Key Features/Keywords: ${keyFeatures}
+            Target Audience: ${targetAudience || 'General Audience'}
+            Tone of Voice: ${toneVoice || 'Professional'}
+            Length & Format: ${wordCount || 'Standard'}
+            Output Language: ${language || 'English'}
+
+            REQUIRED FORMAT:
+            Please provide the output EXACTLY in this format with these exact headings:
+
+            [DESCRIPTION]
+            (Write a compelling, high-converting product description using markdown. ${lengthInstruction})
+
+            [SEO]
+            (Write ONLY the SEO meta description here. It must be compelling, include the main keywords, and be under 160 characters.)
+            `;
+
             const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ prompt })
             });
 
             if (!response.ok) {
@@ -207,12 +240,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            if (data.description && data.seo) {
-                rawDescription = data.description;
-                rawSeo = data.seo;
-                displayResult(payload.productName);
+            if (data.result) {
+                const generatedText = data.result;
+                let descMatch = generatedText.match(/\[DESCRIPTION\]([\s\S]*?)(?=\[SEO\]|$)/i);
+                let seoMatch = generatedText.match(/\[SEO\]([\s\S]*)$/i);
+
+                if (!descMatch && !seoMatch) {
+                     rawDescription = generatedText.trim();
+                     rawSeo = `Buy the best ${productName} online today. Check out its amazing features and get yours now!`; // Fallback
+                } else {
+                     rawDescription = descMatch ? descMatch[1].trim() : "Description could not be parsed.";
+                     rawSeo = seoMatch ? seoMatch[1].trim() : "SEO description could not be parsed.";
+                }
+
+                // Clean up markdown markers
+                rawDescription = rawDescription.replace(/^```markdown\n/, '').replace(/\n```$/, '').trim();
+                rawSeo = rawSeo.replace(/^```\n/, '').replace(/\n```$/, '').replace(/^"|"$/g, '').trim();
+
+                displayResult(productName);
             } else {
-                throw new Error("Received malformed response from the server.");
+                throw new Error("Received empty response from the AI model.");
             }
 
         } catch (error) {
