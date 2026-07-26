@@ -4,40 +4,39 @@ A modern, responsive web application designed to generate high-converting produc
 
 ## Features
 
-- **AI-Powered Generation**: Leverages Google's Gemini 1.5 Flash model to create tailored product descriptions.
-- **Customizable Output**: Adjust inputs for Target Audience, Tone of Voice, and Output Language.
-- **SEO Optimization**: Generates a dedicated SEO meta description complete with a character counter preview.
+- **Serverless Backend**: Securely connects to the Google Gemini API using a Vercel Serverless Function (`/api/generate.js`).
+- **Bilingual Interface**: Full support for English (LTR) and Arabic (RTL) with language toggle.
+- **AI-Powered Generation**: Leverages Google's Gemini model to create tailored product descriptions.
+- **Customizable Output**: Adjust inputs for Target Audience, Tone of Voice (with emoji formatting), Length & Format, and Output Language.
+- **Shopify Preview**: Visualize the output instantly inside a simulated Shopify product tab.
+- **SEO Optimization**: Generates a dedicated SEO meta description.
 - **Modern UI**: Clean interface built with Tailwind CSS, featuring full Dark/Light mode support.
-- **Copy to Clipboard**: One-click copying of generated content with visual feedback.
-- **Secure API Key Handling**: API key is stored locally in the browser (`localStorage`) and is only sent directly to Google's API endpoints.
+- **Social Sharing**: Easily share the tool with your network via WhatsApp and LinkedIn.
 
 ## Tech Stack
 
 - **HTML5**
-- **CSS3 / Tailwind CSS** (via CDN for rapid styling)
+- **CSS3 / Tailwind CSS**
 - **Vanilla JavaScript**
 - **marked.js** (for parsing markdown output from the AI)
-- **FontAwesome** (for icons)
+- **Node.js / Vercel Serverless Functions** (for backend API)
 
 ## Setup & Usage
 
-Since this is a client-side only application using Vanilla JS, no build steps are required.
+To run this application, you need to set up the backend environment to securely access the Gemini API.
 
 1. **Clone or Download** the repository.
-2. **Open `index.html`** in any modern web browser.
-   - *Optional:* Use a local development server like Live Server (VS Code) or `python3 -m http.server`.
-3. **Get a Gemini API Key**:
-   - Visit [Google AI Studio](https://aistudio.google.com/app/apikey) to generate a free API key.
-4. **Enter your API Key**: Paste the key into the setup banner at the top of the application and click "Save Key".
+2. **Get a Gemini API Key**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey) to generate a free API key.
+3. **Environment Setup**: Create a `.env` file in the root directory (or configure Vercel environment variables) and set your key:
+   `GEMINI_API_KEY=your_api_key_here`
+4. **Run Locally**: Use a tool like Vercel CLI to run the app locally:
+   `vercel dev`
 5. **Generate**: Fill out the product details form and click "Generate Description".
 
 ## File Structure
 
 - `index.html`: The main markup structure and Tailwind CDN configuration.
-- `app.js`: Contains all the logic for state management, API requests, and DOM manipulation.
-- `style.css`: Custom CSS overrides for scrollbars and markdown formatting.
+- `app.js`: Contains all the frontend logic, state management, and form submissions to the backend.
+- `style.css`: Custom CSS overrides for fonts (Inter/Tajawal), RTL helpers, and markdown formatting.
+- `api/generate.js`: The Vercel serverless function that securely interacts with the Gemini API.
 - `README.md`: Project documentation.
-
-## Note on Production
-
-This application is designed as a demonstration/client-side tool. In a production environment facing public users, you should **never** expose API keys in client-side code. Instead, you would set up a backend server to proxy requests to the Gemini API to keep your API keys secure. However, in this application, the user provides their *own* key which is stored in their browser's local storage.
