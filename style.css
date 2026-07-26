@@ -1,5 +1,19 @@
 /* Custom overrides and animations not covered by Tailwind CDN */
 
+/* Fonts */
+.font-inter {
+    font-family: 'Inter', sans-serif;
+}
+.font-tajawal {
+    font-family: 'Tajawal', sans-serif;
+}
+
+/* RTL Helpers */
+.ltr {
+    direction: ltr;
+    text-align: left;
+}
+
 /* Make scrollbars look nice */
 ::-webkit-scrollbar {
     width: 8px;
