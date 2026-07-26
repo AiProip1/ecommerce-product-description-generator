@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const langToggleBtn = document.getElementById('lang-toggle');
     const langText = document.getElementById('lang-text');
 
-    const apiKeyInput = document.getElementById('api-key-input');
-    const saveApiKeyBtn = document.getElementById('save-api-key');
-
     const form = document.getElementById('generator-form');
     const generateBtn = document.getElementById('generate-btn');
     const btnText = document.getElementById('btn-text');
@@ -74,10 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'lang-text': 'العربية',
             'hero-title': 'Generate High-Converting Product Descriptions',
             'hero-subtitle': 'Boost your sales with AI-powered, SEO-optimized descriptions tailored to your audience and brand voice.',
-            'api-setup-title': 'Setup Google Gemini API Key',
-            'api-setup-desc': 'Your key is stored locally in your browser and is not sent anywhere else. Get a free key <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline">here</a>.',
-            'save-api-key': 'Save Key',
-            'saved-key': 'Saved!',
             'form-title': 'Product Details',
             'label-product-name': 'Product Name <span class="text-red-500">*</span>',
             'label-features': 'Key Features / Keywords <span class="text-red-500">*</span>',
@@ -108,10 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'lang-text': 'English',
             'hero-title': 'إنشاء وصف منتجات عالي التحويل',
             'hero-subtitle': 'عزز مبيعاتك بوصف منتجات مدعوم بالذكاء الاصطناعي، ومحسن لمحركات البحث، ومصمم خصيصًا لجمهورك وهوية علامتك التجارية.',
-            'api-setup-title': 'إعداد مفتاح واجهة برمجة تطبيقات Google Gemini',
-            'api-setup-desc': 'يتم تخزين المفتاح محليًا في متصفحك ولا يتم إرساله لأي مكان آخر. احصل على مفتاح مجاني <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline">من هنا</a>.',
-            'save-api-key': 'حفظ المفتاح',
-            'saved-key': 'تم الحفظ!',
             'form-title': 'تفاصيل المنتج',
             'label-product-name': 'اسم المنتج <span class="text-red-500">*</span>',
             'label-features': 'الميزات الرئيسية / الكلمات المفتاحية <span class="text-red-500">*</span>',
@@ -148,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const [id, text] of Object.entries(dict)) {
             const el = document.getElementById(id);
             if (el) {
-                if (id === 'api-setup-desc' || id === 'label-product-name' || id === 'label-features') {
+                if (id === 'label-product-name' || id === 'label-features') {
                     el.innerHTML = text;
                 } else {
                     el.textContent = text;
@@ -182,34 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setLanguage(currentLang === 'en' ? 'ar' : 'en');
     });
 
-    // --- API Key Management ---
-    const savedKey = localStorage.getItem('gemini_api_key');
-    if (savedKey) {
-        apiKeyInput.value = savedKey;
-        saveApiKeyBtn.textContent = 'Saved!';
-        saveApiKeyBtn.classList.replace('bg-yellow-500', 'bg-green-500');
-        saveApiKeyBtn.classList.replace('hover:bg-yellow-600', 'hover:bg-green-600');
-    }
-
-    saveApiKeyBtn.addEventListener('click', () => {
-        const key = apiKeyInput.value.trim();
-        if (key) {
-            localStorage.setItem('gemini_api_key', key);
-            saveApiKeyBtn.textContent = 'Saved!';
-            saveApiKeyBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-            saveApiKeyBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-
-            setTimeout(() => {
-                saveApiKeyBtn.textContent = 'Save Key';
-                saveApiKeyBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-                saveApiKeyBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-            }, 2000);
-        } else {
-            localStorage.removeItem('gemini_api_key');
-            showError("API Key removed.");
-        }
-    });
-
     // --- Main Generator Logic ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -217,84 +178,41 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide previous errors
         errorMsgContainer.classList.add('hidden');
 
-        const apiKey = apiKeyInput.value.trim();
-        if (!apiKey) {
-            showError("Please enter your Google Gemini API Key above.");
-            apiKeyInput.focus();
-            return;
-        }
-
         // Get Form Values
-        const productName = document.getElementById('product-name').value.trim();
-        const keyFeatures = document.getElementById('key-features').value.trim();
-        const targetAudience = document.getElementById('target-audience').value;
-        const toneVoice = document.getElementById('tone-voice').value;
-        const wordCount = document.getElementById('word-count').value;
-        const language = document.getElementById('language-output').value;
-
-        // Determine specific structural instructions based on Length requirement
-        let lengthInstruction = "Include an engaging hook, a paragraph highlighting the main benefits, and bullet points for key features. Keep it structured and easy to read.";
-        if (wordCount === 'Short & Punchy') {
-            lengthInstruction = "Make it very short, punchy, and straight to the point. 1-2 short paragraphs max.";
-        } else if (wordCount === 'Bullet Points Only') {
-            lengthInstruction = "Do not write paragraphs. Output the description ONLY as a list of compelling bullet points.";
-        } else if (wordCount === 'Detailed') {
-            lengthInstruction = "Write a comprehensive and detailed description. Include a hook, story-driven benefits, technical specifications in bullet points, and a strong call to action.";
-        }
-
-        // Construct Prompt
-        const prompt = `You are an expert E-commerce Copywriter and SEO specialist.
-        Please generate two things based on the following product details:
-
-        Product Name: ${productName}
-        Key Features/Keywords: ${keyFeatures}
-        Target Audience: ${targetAudience}
-        Tone of Voice: ${toneVoice}
-        Length & Format: ${wordCount}
-        Output Language: ${language}
-
-        REQUIRED FORMAT:
-        Please provide the output EXACTLY in this format with these exact headings:
-
-        [DESCRIPTION]
-        (Write a compelling, high-converting product description using markdown. ${lengthInstruction})
-
-        [SEO]
-        (Write ONLY the SEO meta description here. It must be compelling, include the main keywords, and be under 160 characters.)
-        `;
+        const payload = {
+            productName: document.getElementById('product-name').value.trim(),
+            keyFeatures: document.getElementById('key-features').value.trim(),
+            targetAudience: document.getElementById('target-audience').value,
+            toneVoice: document.getElementById('tone-voice').value,
+            wordCount: document.getElementById('word-count').value,
+            language: document.getElementById('language-output').value
+        };
 
         // Set Loading State
         setLoadingState(true);
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 1024,
-                    }
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+                throw new Error(errorData.error || `Server Error: ${response.status}`);
             }
 
             const data = await response.json();
 
-            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts.length > 0) {
-                const generatedText = data.candidates[0].content.parts[0].text;
-                parseAndDisplayResult(generatedText, productName);
+            if (data.description && data.seo) {
+                rawDescription = data.description;
+                rawSeo = data.seo;
+                displayResult(payload.productName);
             } else {
-                throw new Error("Received empty response from the API.");
+                throw new Error("Received malformed response from the server.");
             }
 
         } catch (error) {
@@ -305,24 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function parseAndDisplayResult(text, productName) {
-        // Simple parser looking for the specific headings requested in the prompt
-        let descMatch = text.match(/\[DESCRIPTION\]([\s\S]*?)(?=\[SEO\]|$)/i);
-        let seoMatch = text.match(/\[SEO\]([\s\S]*)$/i);
-
-        // Fallback parsing if the model didn't perfectly follow the [TAG] format
-        if (!descMatch && !seoMatch) {
-             rawDescription = text;
-             rawSeo = `Buy the best ${productName} online today. Check out its amazing features and get yours now!`; // Fallback
-        } else {
-             rawDescription = descMatch ? descMatch[1].trim() : "Description could not be parsed.";
-             rawSeo = seoMatch ? seoMatch[1].trim() : "SEO description could not be parsed.";
-        }
-
-        // Clean up markdown markers if the model put them around the tags
-        rawDescription = rawDescription.replace(/^```markdown\n/, '').replace(/\n```$/, '').trim();
-        rawSeo = rawSeo.replace(/^```\n/, '').replace(/\n```$/, '').replace(/^"|"$/g, '').trim();
-
+    function displayResult(productName) {
         // Update UI: Description
         descPlaceholder.classList.add('hidden');
         descriptionOutput.classList.remove('hidden');
