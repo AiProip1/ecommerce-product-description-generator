@@ -35,6 +35,16 @@ async function getAvailableFlashModels(apiKey) {
     return supportsGenerateContent && isFlash && !hasUnwantedTerms;
   });
 
+  // Sort to prioritize 'flash-lite' models
+  validModels.sort((a, b) => {
+    const aIsLite = a.name.toLowerCase().includes('flash-lite');
+    const bIsLite = b.name.toLowerCase().includes('flash-lite');
+
+    if (aIsLite && !bIsLite) return -1; // a comes first
+    if (!aIsLite && bIsLite) return 1;  // b comes first
+    return 0; // maintain original order otherwise
+  });
+
   // Extract just the names (e.g., "models/gemini-2.5-flash")
   return validModels.map(model => model.name);
 }
